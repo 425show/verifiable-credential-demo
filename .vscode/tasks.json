@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/1-asp-net-core-api-idtokenhint/AspNetCoreVerifiableCredentials.csproj",
+                "${workspaceFolder}/src/AspNetCoreVerifiableCredentials.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/1-asp-net-core-api-idtokenhint/AspNetCoreVerifiableCredentials.csproj",
+                "${workspaceFolder}/src/AspNetCoreVerifiableCredentials.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -32,7 +32,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/1-asp-net-core-api-idtokenhint/AspNetCoreVerifiableCredentials.csproj",
+                "${workspaceFolder}/src/AspNetCoreVerifiableCredentials.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

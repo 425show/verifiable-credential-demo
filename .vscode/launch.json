@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/1-asp-net-core-api-idtokenhint/bin/Debug/net5.0/AspNetCoreVerifiableCredentials.dll",
+            "program": "${workspaceFolder}/src/bin/Debug/net6.0/AspNetCoreVerifiableCredentials.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/1-asp-net-core-api-idtokenhint",
+            "cwd": "${workspaceFolder}/src",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
