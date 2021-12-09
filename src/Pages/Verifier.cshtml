@@ -1,0 +1,124 @@
+﻿@page
+@model AspNetCoreVerifiableCredentials.Pages.VerifierModel
+@{
+    ViewData["Title"] = "Verifier";
+}
+
+<div style="text-align: center;">
+    <h2>Verify your Issued Credential</h2>
+</div>
+
+<hr />
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <form>
+                <div class="mb-3">
+                    <label for="credType" class="form-label">Select the Credential Type to verify</label>
+                    <select class="form-select" name="credType" aria-label="Default select example"
+                        asp-items="Model.CredentialTypes">
+                    </select>
+                </div>
+                <div class="mb-3 text-center">
+                    <button type="button" id="btn-verify" class="btn btn-primary">Verify Credential</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-8 text-center">
+            <div id="qrText" style="display:none;">
+                <p class="small-text">
+                    <img src="authenticator-icon.png" alt="Authenticator icon" class="icon-small"><br>
+                    Scan with Microsoft Authenticator
+                </p>
+            </div>
+            <div>
+                <a id="deeplink" style="display:none; margin-top:10px;">Tap to open Authenticator on mobile</a>
+            </div>
+            <div id="qrcode"></div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-8 text-center">
+            <div id="pinCodeText" style="display: none; margin-top:10px;" class="bg-info text-dark"></div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-8 text-center">
+            <div id="message-wrapper" class="margin-bottom-75 margin-top-75" style="display: none">
+                <i class="fas fa-user-check green fa-5x margin-bottom-25"></i>
+                <div id="message"></div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center" id="verification-result" style="display: none;">
+        <div class="text-center border" style="font-size:1.2em;">
+            <div id="cred-owner"></div>
+            <div id="cred-info"></div>
+        </div>
+    </div>
+</div>
+
+<script src="qrcode.min.js"></script>
+<script>
+    var verify = document.getElementById('btn-verify');
+    var qrcode = new QRCode("qrcode", { width: 200, height: 200 });
+    var respPresentationReq = null;
+    var credType = null;
+
+    verify.addEventListener('click', () => {
+        credType = document.querySelector('select[name="credType"]').value;
+        var url = `/api/verifier/presentation-request?credType=${credType}`;
+        fetch(url)
+            .then(function (response) {
+                response.text()
+                    .catch(error => document.getElementById("message").innerHTML = error)
+                    .then(function (message) {
+                        respPresentationReq = JSON.parse(message);
+                        if (/Android/i.test(navigator.userAgent)) {
+                            console.log(`Android device! Using deep link (${respPresentationReq.url}).`);
+                            window.location.href = respPresentationReq.url; setTimeout(function () {
+                                window.location.href = "https://play.google.com/store/apps/details?id=com.azure.authenticator";
+                            }, 2000);
+                        } else if (/iPhone/i.test(navigator.userAgent)) {
+                            console.log(`iOS device! Using deep link (${respPresentationReq.url}).`);
+                            window.location.replace(respPresentationReq.url);
+                        } else {
+                            console.log(`Not Android or IOS. Generating QR code encoded with ${message}`);
+                            qrcode.makeCode(respPresentationReq.url);
+                            document.getElementById('btn-verify').style.visibility = "hidden";
+                            document.getElementById('qrText').style.display = "block";
+                        }
+                    }).catch(error => { console.log(error.message); })
+            }).catch(error => { console.log(error.message); })
+
+        var checkStatus = setInterval(function () {
+            fetch('api/verifier/presentation-response?id=' + respPresentationReq.requestId)
+                .then(response => response.text())
+                .catch(error => document.getElementById("message").innerHTML = error)
+                .then(response => {
+                    if (response.length > 0) {
+                        console.log(response)
+                        respMsg = JSON.parse(response);
+                        // QR Code scanned
+                        if (respMsg.status == 'request_retrieved') {
+                            document.getElementById('message-wrapper').style.display = "block";
+                            document.getElementById('qrText').style.display = "none";
+                            document.getElementById('qrcode').style.display = "none";
+                            document.getElementById('message').innerHTML = respMsg.message;
+                        }
+                        if (respMsg.status == 'presentation_verified') {
+                            document.getElementById('message').innerHTML = "Verification successful!";
+                            document.getElementById('verification-result').style.display = "block";
+                            document.getElementById('cred-info').innerHTML = `Credential verified: <strong> ${respMsg.payload}</strong>`;
+                            document.getElementById('cred-owner').innerHTML = `Credential owner: <strong>${respMsg.name}</strong>`;
+                            clearInterval(checkStatus);
+                        }
+
+                    }
+                })
+        }, 1500); //change this to higher interval if you use ngrok to prevent overloading the free tier service
+    })
+</script>

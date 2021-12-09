@@ -1,0 +1,160 @@
+﻿@page
+@model AspNetCoreVerifiableCredentials.Pages.IssuerModel
+@{
+    ViewData["Title"] = "Issuer";
+}
+<div style="text-align: center;">
+    <h2>Issue a Verifiable Credential</h2>
+</div>
+
+<hr/>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <form>
+                <div class="mb-3">
+                    <label for="inputFirstName" class="form-label">First Name *</label>
+                    <input type="text" class="form-control" id="inputFirstName" placeholder="Enter your first name" required="required">
+                </div>
+                <div class="mb-3">
+                    <label for="inputLastName" class="form-label">Last Name *</label>
+                    <input type="text" class="form-control" id="inputLastName" placeholder="Enter your last name" required="required">
+                </div>
+                <div class="mb-3">
+                    <label for="credType" class="form-label">Select a Credential Type</label>
+                    <select class="form-select" name="credType" aria-label="Default select example" asp-items="Model.CredentialTypes">
+                    </select>
+                </div>
+                <div class="mb-3 text-center">
+                    <button type="button" id="sign-in" class="btn btn-primary">Step 1 - Get Credential</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-8 text-center">
+            <div id="qrText" style="display:none;">
+                <p class="small-text">
+                    <img src="authenticator-icon.png" alt="Authenticator icon" class="icon-small"><br>
+                    Scan with Microsoft Authenticator
+                </p>
+            </div>
+            <div >
+                <a id="deeplink" style="display:none; margin-top:10px;">Tap to open Authenticator on mobile</a>
+            </div>
+            <div id="qrcode"></div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-8 text-center">
+            <div id="pinCodeText" style="display:none; margin-top:10px;" class="bg-info text-dark"></div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-8 text-center">
+            <div id="message-wrapper" class="margin-bottom-75 margin-top-75" style="display: none">
+                <i class="fas fa-user-check green fa-5x margin-bottom-25"></i>
+                <div id="message"></div>
+                <br />
+                <div id="payload"></div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-8 text-center">
+                <button type="button" id="verify-button" class="btn btn-primary" style="display:none" onclick="verifyCredential()">
+                    Step 2 - Verify credential&nbsp;<i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="qrcode.min.js"></script>
+<script>
+    var signIn = document.getElementById('sign-in');
+    var verify = document.getElementById('verify-button');
+    var qrcode = new QRCode("qrcode", { width: 200, height: 200 });
+    var respIssuanceReq = null;
+    var credType = null;
+
+    var verifyCredential = () => {
+        window.location = `verifier?credType=${credType}`;
+    };
+
+    signIn.addEventListener('click', () => {
+        var firstName = document.getElementById('inputFirstName').value;
+        var lastName = document.getElementById('inputLastName').value;
+        credType = document.querySelector('select[name="credType"]').value;
+        if(lastName.length == 0 || firstName.length == 0) {
+            toastr.error("Please enter your first and last name");
+            return;
+        }
+        var url = `/api/issuer/issuance-request?credType=${credType}&firstName=${firstName}&lastName=${lastName}`;
+        fetch(url)
+        .then(function(response) {
+            response.text()
+            .catch(error => document.getElementById("message").innerHTML = error)
+            .then(function(message) {
+                respIssuanceReq = JSON.parse(message);
+                if( /Android/i.test(navigator.userAgent) ) {
+                    console.log(`Android device! Using deep link (${respIssuanceReq.url}).`);
+                    window.location.href = respIssuanceReq.url; 
+                    setTimeout(function () {
+                        window.location.href = "https://play.google.com/store/apps/details?id=com.azure.authenticator"; }, 
+                        2000
+                    );
+                } else if (/iPhone/i.test(navigator.userAgent)) {
+                    console.log(`iOS device! Using deep link (${respIssuanceReq.url}).`);
+                    window.location.replace(respIssuanceReq.url);
+                } else {
+                    console.log(`Not Android or IOS. Generating QR code encoded with ${message}`);
+                    qrcode.makeCode(respIssuanceReq.url);
+                    document.getElementById('sign-in').style.display = "none";
+                    document.getElementById('qrText').style.display = "block";
+                    if (respIssuanceReq.pin) {
+                        document.getElementById('pinCodeText').innerHTML = `Pin code: <strong>${respIssuanceReq.pin}</strong>`;
+                        document.getElementById('pinCodeText').style.display = "block";
+                    }
+                }
+            }).catch(error => { console.log(error.message); })
+        }).catch(error => { console.log(error.message); })
+
+        var checkStatus = setInterval(function () {
+            fetch('api/issuer/issuance-response?id=' + respIssuanceReq.requestId )
+                .then(response => response.text())
+                .catch(error => document.getElementById("message").innerHTML = error)
+                .then(response => {
+                    if (response.length > 0) {
+                        console.log(response)
+                        respMsg = JSON.parse(response);
+                        // QR Code scanned, show pincode if pincode is required
+                        if (respMsg.status == 'request_retrieved') {
+                            document.getElementById('message-wrapper').style.display = "block";
+                            document.getElementById('qrText').style.display = "none";
+                            document.getElementById('qrcode').style.display = "none";
+
+                            if (respMsg.pin) {
+                                document.getElementById('pinCodeText').style.display = "visible";
+                            }
+                            document.getElementById('message').innerHTML = respMsg.message;
+                        }
+                        if (respMsg.status == 'issuance_successful') {
+                            document.getElementById('pinCodeText').style.display = "none";
+                            document.getElementById('message').innerHTML = respMsg.message;
+                            verify.style.display = "block";
+                            clearInterval(checkStatus);
+                        }
+                        if (respMsg.status == 'issuance_error') {
+                            document.getElementById('pinCodeText').style.display = "none";
+                            document.getElementById('message').innerHTML = "Issuance error occured, did you enter the wrong pincode? Please refresh the page and try again.";
+                            document.getElementById('payload').innerHTML = `Payload: ${respMsg.payload}`;
+                            clearInterval(checkStatus);
+                        }
+                    }
+                })
+        }, 1500); //change this to higher interval if you use ngrok to prevent overloading the free tier service
+    })
+</script>
+

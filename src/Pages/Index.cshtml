@@ -1,0 +1,58 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div style="text-align: center;">
+    <h2>Verifiable Credential Issuance and Verification</h2>
+</div>
+<hr/>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-8 border rounded">
+            <p class="lead text-start">
+                This sample demonstrates how to issue and verify verifiable credentials.
+                Using this application you can issue and verify verifiable credentials
+                with the 425Show Azure Active Directory Tenant. Getting a verifable credential 
+                is a 2-step process:
+                <br/><br/>
+                <i class="fas fa-step-forward lead" aria-hidden="true"></i>Step 1- Issue a verifiable credential
+                <br/>
+                <i class="fas fa-step-forward" aria-hidden="true"></i>Step 2- Verify the credential
+            </p>
+            <p class="lead text-start">
+                If you want to learn more about Microsoft's Decentralized Identity (DiD) and how to work
+                with verifiable credentials, check our content here <a href="http://aka.ms/did-hackathon" target="_blank">here</a>.
+            </p>
+        </div>
+    </div>
+    <div class="row justify-content-center" style="margin-top:20px;">
+        <div class="col-5">
+            <p class="text-start" style="font-size:1.5em;">Get started by issuing a verifiable credential.</p>
+        </div>
+        <div class="col-3 text-end">
+            <button type="button" id="idIssue" class="btn btn-primary">Issue Credential</button>
+        </div>
+    </div>
+    <div class="row justify-content-center" style="margin-top:20px;">
+        <div class="col-5">
+            <p class="text-start" style="font-size:1.5em">Verify your issued credential.</p>
+        </div>
+        <div class="col-3 text-end">
+            <button type="button" id="idVerify" class="btn btn-primary">Verify Credential</button>
+        </div
+    </div>
+</div>
+
+<script>
+    var idIssue = document.getElementById('idIssue');
+    var idVerify = document.getElementById('idVerify');
+
+    idIssue.addEventListener('click', () => {
+        window.location = "issuer";
+    })
+    idVerify.addEventListener('click', () => {
+        window.location = "verifier";
+    })
+</script>
