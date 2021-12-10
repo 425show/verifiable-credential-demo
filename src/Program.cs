@@ -1,5 +1,6 @@
 using AspNetCoreVerifiableCredentials;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,12 @@ builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
+
+app.MapGet("/.well-known/did-configuration.json", async () =>
+{
+    return await DidWellKnownEndpointService.GetDidConfiguration();
+});
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -38,7 +45,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
 app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
