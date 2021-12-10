@@ -1,17 +1,7 @@
 using AspNetCoreVerifiableCredentials;
-using Azure.Extensions.AspNetCore.Configuration.Secrets;
-using Azure.Identity;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddAzureKeyVault(
-    new Uri("https://kv425show.vault.azure.net"),
-    new ChainedTokenCredential(
-        new AzureCliCredential(),
-        new ManagedIdentityCredential()
-    ),
-    new KeyVaultSecretManager()
-);
 
 builder.Services.AddRazorPages();
 

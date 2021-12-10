@@ -32,6 +32,10 @@ namespace AspNetCoreVerifiableCredentials
 
         public string CredentialTypes { get; set; }
 
+        public bool UseKeyVaultForSecrets {get ;set; }
+
+        public string KeyVaultName {get;set;}
+
         public string[] CredentialTypesList
         {
             get
@@ -44,14 +48,14 @@ namespace AspNetCoreVerifiableCredentials
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, Instance, TenantId);
+                return string.Format(CultureInfo.InvariantCulture, Instance, TenantId);
             }
         }
         public string ApiEndpoint
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, Endpoint, TenantId);
+                return string.Format(CultureInfo.InvariantCulture, Endpoint, TenantId);
             }
         }
 
@@ -59,32 +63,27 @@ namespace AspNetCoreVerifiableCredentials
 
         public string CertificateName { get; set; }
 
-        public bool AppUsesClientSecret(AppSettingsModel config)
+        public bool AppUsesClientSecret()
         {
-            string clientSecretPlaceholderValue = "[Enter here a client secret for your application]";
-            string certificatePlaceholderValue = "[Or instead of client secret: Enter here the name of a certificate (from the user cert store) as registered with your application]";
-
-            if (!String.IsNullOrWhiteSpace(config.ClientSecret) && config.ClientSecret != clientSecretPlaceholderValue)
+            if (!string.IsNullOrWhiteSpace(this.ClientSecret) || this.UseKeyVaultForSecrets)
             {
                 return true;
             }
-
-            else if (!String.IsNullOrWhiteSpace(config.CertificateName) && config.CertificateName != certificatePlaceholderValue)
+            else if (!string.IsNullOrWhiteSpace(this.CertificateName))
             {
                 return false;
             }
-
             else
-                throw new Exception("You must choose between using client secret or certificate. Please update appsettings.json file.");
+            {
+                throw new Exception("You must choose between using client secret or certificate. Please update the 'appsettings.json' file.");
+            }
         }
         public X509Certificate2 ReadCertificate(string certificateName)
         {
-            if (string.IsNullOrWhiteSpace(certificateName))
-            {
-                throw new ArgumentException("certificateName should not be empty. Please set the CertificateName setting in the appsettings.json", "certificateName");
-            }
-            CertificateDescription certificateDescription = CertificateDescription.FromStoreWithDistinguishedName(certificateName);
-            DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
+            ArgumentNullException.ThrowIfNull(certificateName, nameof(certificateName));
+
+            var certificateDescription = CertificateDescription.FromStoreWithDistinguishedName(certificateName);
+            var defaultCertificateLoader = new DefaultCertificateLoader();
             defaultCertificateLoader.LoadIfNeeded(certificateDescription);
             return certificateDescription.Certificate;
         }
