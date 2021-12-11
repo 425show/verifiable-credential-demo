@@ -88,7 +88,14 @@
         var lastName = document.getElementById('inputLastName').value;
         credType = document.querySelector('select[name="credType"]').value;
         if(lastName.length == 0 || firstName.length == 0) {
-            toastr.error("Please enter your first and last name");
+            var notyf = new Notyf({
+                duration: 3000,
+                position: {
+                    x: 'right',
+                    y: 'top',
+                }, 
+            });
+            notyf.error('Please enter your first and last name');
             return;
         }
         var url = `/api/issuer/issuance-request?credType=${credType}&firstName=${firstName}&lastName=${lastName}`;
