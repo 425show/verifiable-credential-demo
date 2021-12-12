@@ -9,6 +9,12 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  ISSUER_CALLBACK_URL: 'https://did-demo.azurewebsite.net/api/issuer/issuanceCallback'
+  PRESENTATION_CALLBACK_URL: 'https://did-demo.azurewebsite.net/api/verifier/presentationCallback'
+  DOTNET_VERSION: '6.0.x'
+
+
 jobs:
   build:
     runs-on: windows-latest
@@ -19,8 +25,15 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
           include-prerelease: true
+
+      - name: Update appsettings.json
+          run: |
+          # Update AppSettings.json. This must be done before build.
+          $appsettings=get-content ".\src\appsettings.json" -raw | ConvertFrom-Json
+          $appsettings.AppSettings.IssuerCallbackUrl = "${{ env.ISSUER_CALLBACK_URL }}"
+          $appsettings.AppSettings.PresentationCallbackUrl = "${{ env.PRESENTATION_CALLBACK_URL}}"
 
       - name: Build with dotnet
         run: dotnet build src --configuration Release
@@ -34,24 +47,10 @@ jobs:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
 
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v2
-        with:
-          name: .net-app
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
+      - name: Deploy web app
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'did-demo'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F4BC556E87504DF98E40F821C32FFDFC }}
-          package: .
+          package: ${{env.DOTNET_ROOT}}/myapp
