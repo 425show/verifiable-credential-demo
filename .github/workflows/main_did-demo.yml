@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 env:
-  ISSUER_CALLBACK_URL: 'https://did-demo.azurewebsite.net/api/issuer/issuanceCallback'
-  PRESENTATION_CALLBACK_URL: 'https://did-demo.azurewebsite.net/api/verifier/presentationCallback'
+  ISSUER_CALLBACK_URL: 'https://did-demo.azurewebsites.net/api/issuer/issuanceCallback'
+  PRESENTATION_CALLBACK_URL: 'https://did-demo.azurewebsites.net/api/verifier/presentationCallback'
   DOTNET_VERSION: '6.0.x'
 
 
