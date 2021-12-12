@@ -42,12 +42,6 @@ jobs:
       - name: dotnet publish
         run: dotnet publish src -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
-        with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
-
       - name: Deploy web app
         uses: azure/webapps-deploy@v2
         with:
