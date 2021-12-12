@@ -27,13 +27,14 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           include-prerelease: true
-
+      
       - name: Update appsettings.json
-          run: |
-          # Update AppSettings.json. This must be done before build.
-          $appsettings=get-content ".\src\appsettings.json" -raw | ConvertFrom-Json
-          $appsettings.AppSettings.IssuerCallbackUrl = "${{ env.ISSUER_CALLBACK_URL }}"
-          $appsettings.AppSettings.PresentationCallbackUrl = "${{ env.PRESENTATION_CALLBACK_URL}}"
+        uses: microsoft/variable-substitution@v1 
+        with:
+          files: 'appsettings.json'
+        env:
+          IssuerCallbackUrl: "${{env.ISSUER_CALLBACK_URL}}"
+          PresentationCallbackUrl: "${{env.PRESENTATION_CALLBACK_URL}}"
 
       - name: Build with dotnet
         run: dotnet build src --configuration Release
