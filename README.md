@@ -5,13 +5,92 @@ This repo contains a set of Azure AD Verifiable Credentials samples
 ## Samples
 | Sample | Description |
 |------|--------|
-| 1-asp-net-core-api-idtokenhint | dotnet sample for using the VC Request API to issue and verify verifiable credentials with a credential contract which allows the VC Request API to pass in a payload for the Verifiable Credentials|
-
-
+| ASP.NET Core | .NET sample for using the VC Request API to issue and verify verifiable credentials with a credential contract which allows the VC Request API to pass in a payload for the Verifiable Credentials|
 
 Microsoft provides a simple to use REST API to issue and verify verifiable credentials. You can use the programming language you prefer to the REST API. Instead of needing to understand the different protocols and encryption algoritms for Verifiable Credentials and DIDs you only need to understand how to format a JSON structure as parameter for the VC Request API.
 
 ![API Overview](ReadmeFiles/SampleArchitectureOverview.svg)
+
+
+## Running locally
+
+### Prerequisites
+- .NET Core IDE (VS, VS Code, Rider etc)
+- .NET 6.0. Download [here](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+- Azure Subscription. Get on FREE [here](https://azure.microsoft.com/free/)
+- Ngrok. Download [here](https://ngrok.com/download)
+
+### Sample configuration
+Once you go through the process of setting up your Verifiable Credentials environment, you can run the sample locally. You will need to update the `appsettings.json` file with your Azure AD Verifiable Credentials configuration.
+
+```JSON
+ "AppSettings": {
+    "CredentialTypes": "BlogReader,StreamViewer,YouTubeWatcher,HackathonParticipant,TikTokWatcher,InstagramFollower,TwitterSpaceParticipant",
+    "IssuerCallbackUrl": "<ngrok public endpoint>/api/issuer/issuanceCallback",
+    "PresentationCallbackUrl": "<ngrkok public endpoint>/api/verifier/presentationCallback",
+    "Endpoint": "https://beta.did.msidentity.com/v1.0/{0}/verifiablecredentials/request",
+    "VCServiceScope": "bbb94529-53a3-4be5-a069-7eaf2712b826/.default",
+    "Instance": "https://login.microsoftonline.com/{0}",
+    "TenantId": "<your Azure AD Tenant ID e.g 3c32ed40-8a10-465b-8ba4-0b1e86882668>",
+    "ClientName": "<Any name will do e.g verifiable-credential-demo>",
+    "ClientId": "<the client Id of your Service principal, e.g 992250d6-8118-4823-8f2c-b3196f45e309>",
+    "UseKeyVaultForSecrets": true,
+    "KeyVaultName": "<your key vault name: i.e mysafekeyvalt>",
+    "ClientSecret": "<Populate only if you're not using KeyVault>",
+    "CertificateName": "<Populate only if you're using a certificate to auth to Azure AD",
+    "IssuerAuthority": "did:ion:EiD_rKiP...fX0",
+    "VerifierAuthority": "did:ion:EiD_...lEifX0",
+    "CredentialManifest": "https://beta.did.msidentity.com/v1.0/b841331d-abdf-482b-b18c-8c70b99faf8e/verifiableCredential/contracts/"
+  }
+```
+Configuration details:
+To authenticate to Azure AD, you can use either a certificate or a client secret. The recommended approach is to use a certificate. However, testing with a client secret is usually easier (but less secure). 
+
+If you are using a certificate, you will need to provide the following information:
+- `CertificateName:` The name of the certificate
+
+If you're using a Client Secret, and want to hardcoded in the config (not recommended) you will need to provide the following information:
+- `ClientSecret`: The client secret value
+
+Alternatively, you can use a KeyVault to store the client secret. In this case, you will need to provide the following information:
+- `UseKeyVaultForSecrets`: true (this is a boolean value)
+- `KeyVaultName`: The name of the KeyVault
+In Azure Key Vault, you will need to create a secret with the name `ClientSecret` and the value of your client secret. You also need to sign in locally to the Azure CLI with an account that has Secret read access to Key Vault secrets. You can use either [RBAC](https://docs.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli) or an [Access Policy](https://docs.microsoft.com/en-us/azure/key-vault/general/assign-access-policy?tabs=azure-portal) to grant access to your account to the Key Vault.
+
+### Using Ngrok
+The use of Ngrok is necessary as the VC Request API requires a publicly accessible endpoint. You can use Ngrok to create a public endpoint for your VC Request API using the following command:
+
+```bash
+ngrok http https://localhost:5001
+```
+If you wish to use an TLS secured endpoint (https) - this requires a paid version of ngrok - you can use the following command:
+
+```bash
+ngrok https https://localhost:5001
+```
+Once Ngrok has created a public endpoint, you can update the `appsettings.json` file with the public endpoint. E.g.
+
+```JSON
+"IssuerCallbackUrl": "<your ngrok public endpoint>/api/issuer/issuanceCallback",
+"PresentationCallbackUrl": "<your ngrkok public endpoint>/api/verifier/presentationCallback",
+```
+
+### Running the sample
+In your terminal, navigate to the `src` directory and run the following command:
+
+```bash
+dotnet run
+```
+
+This should start the sample. The local URI for the sample is `https://localhost:5000`.
+
+### Potential issues
+- If your Issue and Verification pages don't work, make sure that Key Vault has been configured correctly and that the account signed in to Azure CLI has the correct permissions to access the Key Vault.
+- If your Issue and Verifications pages fail to return any results, double check the configuration in the `appsettings.json` file.
+- If you're using a certificate, make sure that the certificate is valid and that the certificate has been added to the Azure AD tenant.
+- If you're using a cerficate, ensure that the certificate is installed in the local certificate store
+- If you're using a client secret, make sure that the client secret is valid (check for typos, spaces or missing characters) and that the client secret has not expired.
+- Check both the .NET logs and the browser console for any errors.
 
 ## Issuance
 

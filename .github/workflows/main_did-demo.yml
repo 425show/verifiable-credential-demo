@@ -12,6 +12,7 @@ on:
 env:
   ISSUER_CALLBACK_URL: 'https://did-demo.azurewebsites.net/api/issuer/issuanceCallback'
   PRESENTATION_CALLBACK_URL: 'https://did-demo.azurewebsites.net/api/verifier/presentationCallback'
+  AZURE_WEB_APP_NAME: 'did-demo'
   DOTNET_VERSION: '6.0.x'
 
 
@@ -45,7 +46,7 @@ jobs:
       - name: Deploy web app
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'did-demo'
+          app-name: ${{env.AZURE_WEB_APP_NAME}}
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F4BC556E87504DF98E40F821C32FFDFC }}
           package: ${{env.DOTNET_ROOT}}/myapp
