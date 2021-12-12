@@ -31,7 +31,7 @@ jobs:
       - name: Update appsettings.json
         uses: microsoft/variable-substitution@v1 
         with:
-          files: 'appsettings.json'
+          files: 'src/appsettings.json'
         env:
           IssuerCallbackUrl: "${{env.ISSUER_CALLBACK_URL}}"
           PresentationCallbackUrl: "${{env.PRESENTATION_CALLBACK_URL}}"
