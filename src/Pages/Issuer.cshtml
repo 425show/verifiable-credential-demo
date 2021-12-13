@@ -32,29 +32,29 @@
             </form>
         </div>
     </div>
-    <div class="row justify-content-center">
-        <div class="col-8 text-center">
+    <div class="row justify-content-md-center">
+        <div class="col col-md-auto text-center">
             <div id="qrText" style="display:none;">
-                <p class="small-text">
-                    <img src="authenticator-icon.png" alt="Authenticator icon" class="icon-small"><br>
+                <p>
+                    <img src="authenticator-icon.png" alt="Authenticator icon" style="width: 50px; padding-bottom: 5px;"><br>
                     Scan with Microsoft Authenticator
                 </p>
             </div>
             <div >
                 <a id="deeplink" style="display:none; margin-top:10px;">Tap to open Authenticator on mobile</a>
             </div>
-            <div id="qrcode"></div>
         </div>
     </div>
-    <div class="row justify-content-center">
-        <div class="col-8 text-center">
-            <div id="pinCodeText" style="display:none; margin-top:10px;" class="bg-info text-dark"></div>
-        </div>
+    <div class="row justify-content-md-center">
+        <div class="col col-md-auto text-center" id="qrcode"></div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div id="pinCodeText" style="display:none; margin-top:10px;" class="col col-lg-8 text-center bg-info text-dark"></div>
     </div>
     <div class="row justify-content-center">
-        <div class="col-8 text-center">
-            <div id="message-wrapper" class="margin-bottom-75 margin-top-75" style="display: none">
-                <i class="fas fa-user-check green fa-5x margin-bottom-25"></i>
+        <div class="col col-lg-8 text-center">
+            <div id="message-wrapper" style="margin-bottom:50px; margin-top:50px; display: none">
+                <i class="fas fa-user-check fa-5x" style="color: #228B22; margin-bottom:25px"></i>
                 <div id="message"></div>
                 <br />
                 <div id="payload"></div>
@@ -62,16 +62,16 @@
         </div>
     </div>
     <div class="row justify-content-center">
-        <div class="col-8 text-center">
+        <div class="col col-md-auto text-center">
             <button type="button" id="verify-button" class="btn btn-primary" style="display:none" onclick="verifyCredential()">
-                Step 2 - Verify credential&nbsp;<i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                Step 2 - Verify credential&nbsp;<i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
             </button>
         </div>
     </div>
 </div>
 
 
-<script src="qrcode.min.js"></script>
+<script src="js/qrcode.min.js"></script>
 <script>
     var signIn = document.getElementById('sign-in');
     var verify = document.getElementById('verify-button');
