@@ -118,7 +118,7 @@ The use of Ngrok is necessary as the VC Request API requires a publicly accessib
 ngrok http http://localhost:5000
 ```
 
-![Ngrok example](../ReadMeFiles/ngrok-url-screen.png)
+![Ngrok example](../ReadmeFiles/ngrok-url-screen.png)
 
 If you wish to bind to a TLS secured endpoint (https) - this requires a paid version of ngrok - you can use the following command:
 
@@ -147,12 +147,12 @@ The project includes a GitHub action for deploying the code to an Azure Web App.
 1. An Azure WebApp already provisioned 
 2. Optionally, if you wish to use Azure Key Vault to store your client secret (recommended) you need to configure either a System or a User Assigned Managed Identity with access your Key Vault.
 
-![Azure Managed identity](../ReadMeFiles/managed-identity.png)
+![Azure Managed identity](../ReadmeFiles/managed-identity.png)
 
 
 GitHub actions support authenticate using either an [Azure Web App Publish Profile](https://github.com/projectkudu/kudu/wiki/Deployment-credentials#site-credentials-aka-publish-profile-credentials) or using [Azure Login](https://github.com/Azure/login) with a Service Principal. You can get the `Publish Profile` from the Azure Portal.
 
-![Azure Web App Publish Profile](../ReadMeFiles/deployment-center.png)
+![Azure Web App Publish Profile](../ReadmeFiles/deployment-center.png)
 
 Finally, you need to edit the `github/workflows/main_did_demo.yml` file to update the following variables:
 
