@@ -133,9 +133,12 @@
             notyf.error('Please enter your first and last name');
             return;
         }
+        
+        spinner.style.display = 'block';
         var url = `/api/issuer/issuance-request?credType=${credType}&firstName=${firstName}&lastName=${lastName}`;
         fetch(url)
         .then(function(response) {
+            spinner.style.display='none';
             response.text()
             .catch(error => document.getElementById("message").innerHTML = error)
             .then(function(message) {
