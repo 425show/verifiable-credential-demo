@@ -30,19 +30,9 @@ namespace AspNetCoreVerifiableCredentials
 
         public string PresentationCallbackUrl { get; set; }
 
-        public string CredentialTypes { get; set; }
-
         public bool UseKeyVaultForSecrets {get ;set; }
 
         public string KeyVaultName {get;set;}
-
-        public string[] CredentialTypesList
-        {
-            get
-            {
-                return CredentialTypes.Split(',');
-            }
-        }
 
         public string Authority
         {

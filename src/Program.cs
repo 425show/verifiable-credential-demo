@@ -1,6 +1,5 @@
 using AspNetCoreVerifiableCredentials;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +10,7 @@ builder.Services.AddOptions<AppSettingsModel>()
         configuration.GetSection("AppSettings").Bind(options));
 
 builder.Services.AddSingleton<MsalTokenProvider>();
+builder.Services.AddSingleton<CredentialTypeHelper>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -36,6 +36,11 @@ var app = builder.Build();
 app.MapGet("/.well-known/did-configuration.json", async () =>
 {
     return await DidWellKnownEndpointService.GetDidConfiguration();
+});
+
+app.MapGet("/api/credentialTypes", (CredentialTypeHelper credentialTypeHelper) =>
+{
+    return credentialTypeHelper.GetCredentialTypes();
 });
 
 if (!app.Environment.IsDevelopment())

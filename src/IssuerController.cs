@@ -5,7 +5,6 @@ using System.Net;
 using Microsoft.Extensions.Caching.Memory;
 using System.Diagnostics;
 using Microsoft.Identity.Client;
-
 using System.Text.Json.Serialization;
 using System.Text.Json;
 
@@ -235,20 +234,6 @@ namespace AspNetCoreVerifiableCredentials
                 return BadRequest(new { error = "400", error_description = ex.Message });
             }
         }
-
-        //some helper functions
-        /*
-        protected string GetRequestHostName()
-        {
-            string scheme = "https";// : this.Request.Scheme;
-            string originalHost = this.Request.Headers["x-original-host"];
-            string hostname = "";
-            if (!string.IsNullOrEmpty(originalHost))
-                hostname = string.Format("{0}://{1}", scheme, originalHost);
-            else hostname = string.Format("{0}://{1}", scheme, this.Request.Host);
-            return hostname;
-        }
-        */
 
         protected bool IsMobile()
         {

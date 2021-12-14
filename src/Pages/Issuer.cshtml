@@ -23,8 +23,9 @@
                 </div>
                 <div class="mb-3">
                     <label for="credType" class="form-label">Select a Credential Type</label>
-                    <select class="form-select" name="credType" aria-label="Default select example" asp-items="Model.CredentialTypes">
+                    <select class="form-select" name="credType" id="credTypeSelect" aria-label="Default select example" asp-items="Model.CredentialTypes">
                     </select>
+                    <label id="credDescription" style="font-size:0.8em;"></label>
                 </div>
                 <div class="mb-3 text-center">
                     <button type="button" id="sign-in" class="btn btn-primary">Step 1 - Get Credential</button>
@@ -43,6 +44,11 @@
             <div >
                 <a id="deeplink" style="display:none; margin-top:10px;">Tap to open Authenticator on mobile</a>
             </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status" id="spinner" style="display:none;">
+            <span class="sr-only">Loading...</span>
         </div>
     </div>
     <div class="row justify-content-md-center">
@@ -75,13 +81,42 @@
 <script>
     var signIn = document.getElementById('sign-in');
     var verify = document.getElementById('verify-button');
+    var spinner = document.getElementById('spinner');
+    var credTypeSelect = document.getElementById('credTypeSelect');
     var qrcode = new QRCode("qrcode", { width: 200, height: 200 });
     var respIssuanceReq = null;
     var credType = null;
+    var credDescription = null;
+
+    function getCredentialDescriptions () {
+        fetch('/api/credentialtypes')
+            .then(response => response.json())
+            .then(data => {
+                credDescriptions = data;
+                setCredentialDescription();
+            }).catch(error => { console.log(error.message); })
+    };
 
     var verifyCredential = () => {
         window.location = `verifier?credType=${credType}`;
     };
+    
+    var setCredentialDescription = (credType) => {
+        if (credType === undefined || credType === null) {
+            credType = credTypeSelect.value;
+        }
+        var description = credDescriptions.find((x) => x.name == credType).description;
+        document.getElementById('credDescription').innerHTML = description;
+    }
+
+
+    getCredentialDescriptions();
+
+    credTypeSelect.addEventListener('change', function () {
+        credType = this.value;
+        setCredentialDescription(credType);
+    });
+
 
     signIn.addEventListener('click', () => {
         var firstName = document.getElementById('inputFirstName').value;

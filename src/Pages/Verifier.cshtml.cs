@@ -1,3 +1,4 @@
+using Humanizer;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
@@ -7,16 +8,18 @@ namespace AspNetCoreVerifiableCredentials.Pages
     public class VerifierModel : PageModel
     {
         protected readonly AppSettingsModel _appSettings;
-        public VerifierModel( IOptions<AppSettingsModel> appSettings)
+        protected readonly List<CredentialType> _credentialTypes;
+        public VerifierModel( IOptions<AppSettingsModel> appSettings, CredentialTypeHelper credHelper)
         {
             _appSettings = appSettings.Value;
+            _credentialTypes = credHelper.GetCredentialTypes();
         }
         
         public List<SelectListItem> CredentialTypes { get; set; }
 
         public void OnGet(string credType)
         {
-            if(!string.IsNullOrEmpty(credType) && !_appSettings.CredentialTypesList.Contains(credType, StringComparer.InvariantCultureIgnoreCase))
+            if(!string.IsNullOrEmpty(credType) && !_credentialTypes.Any( x => x.Name.Equals(credType, StringComparison.InvariantCultureIgnoreCase)))
             {
                 throw new Exception("Invalid credential type specified");
             }
@@ -24,12 +27,12 @@ namespace AspNetCoreVerifiableCredentials.Pages
             credType = credType ?? string.Empty;
             CredentialTypes = new List<SelectListItem>();
 
-            foreach(string cred in _appSettings.CredentialTypesList)
+            foreach(string cred in _credentialTypes.Select( x => x.Name))
             {
                 CredentialTypes.Add(new SelectListItem
                 {
                     Value = cred,
-                    Text = cred,
+                    Text = cred.Humanize(LetterCasing.Title),
                     Selected = cred.ToLower() == credType.ToLower()
                 });
             }
